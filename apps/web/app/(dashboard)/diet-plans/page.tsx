@@ -15,13 +15,13 @@ import {
   Filter
 } from 'lucide-react';
 import { ClinicalApiClient } from '@/lib/api-client';
-import { 7DayDietPlan, DayPlanData, MealItem, PatientIntakeData } from '@/types';
+import { SevenDayDietPlan, DayPlanData, MealItem, PatientIntakeData } from '@/types';
 import { MealCard } from '@/components/visuals/MealCard';
 import { MacroDonutRing } from '@/components/visuals/MacroDonutRing';
 
 export default function DietPlansPage() {
   const [activeDayIndex, setActiveDayIndex] = useState(0);
-  const [dietPlan, setDietPlan] = useState<7DayDietPlan | null>(null);
+  const [dietPlan, setDietPlan] = useState<SevenDayDietPlan | null>(null);
 
   useEffect(() => {
     // Default intake if none in storage
