@@ -6,7 +6,7 @@ import {
   DiabetesType,
   DayPlanData,
   MealItem,
-  7DayDietPlan
+  SevenDayDietPlan
 } from '@diacare/shared-types';
 
 @Injectable()
