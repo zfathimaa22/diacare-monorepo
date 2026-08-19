@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { MealItem, RecipeData } from '@diacare/shared-types';
+import { MealItem, RecipeData } from '@/types';
 import { GlycemicMeter } from './GlycemicMeter';
 import { CLINICAL_RECIPES } from '@/lib/api-client';
 import { Clock, RefreshCw, ChefHat, Sparkles, X, Check } from 'lucide-react';
