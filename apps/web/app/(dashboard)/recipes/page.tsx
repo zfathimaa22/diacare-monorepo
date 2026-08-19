@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { CLINICAL_RECIPES } from '@/lib/api-client';
-import { RecipeData } from '@diacare/shared-types';
+import { RecipeData } from '@/types';
 import { GlycemicMeter } from '@/components/visuals/GlycemicMeter';
 import { Search, Filter, Clock, Flame, Sparkles, ChefHat, X } from 'lucide-react';
 
