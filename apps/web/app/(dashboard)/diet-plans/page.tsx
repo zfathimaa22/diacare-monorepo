@@ -15,7 +15,7 @@ import {
   Filter
 } from 'lucide-react';
 import { ClinicalApiClient } from '@/lib/api-client';
-import { 7DayDietPlan, DayPlanData, MealItem, PatientIntakeData } from '@diacare/shared-types';
+import { 7DayDietPlan, DayPlanData, MealItem, PatientIntakeData } from '@/types';
 import { MealCard } from '@/components/visuals/MealCard';
 import { MacroDonutRing } from '@/components/visuals/MacroDonutRing';
 
