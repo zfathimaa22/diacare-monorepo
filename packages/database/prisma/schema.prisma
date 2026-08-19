@@ -1,0 +1,150 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PATIENT
+  DIETITIAN
+  DOCTOR
+  ADMIN
+}
+
+enum DiabetesType {
+  TYPE_1
+  TYPE_2
+  PRE_DIABETES
+  GESTATIONAL
+}
+
+enum DietaryArchetype {
+  MEDITERRANEAN
+  KETO_LOW_CARB
+  SOUTH_ASIAN
+  DASH_CARDIO
+  PLANT_BASED
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         Role      @default(PATIENT)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  patient      Patient?
+}
+
+model Patient {
+  id                String           @id @default(uuid())
+  userId            String           @unique
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age               Int
+  gender            String
+  heightCm          Float
+  weightKg          Float
+  activityLevel     String
+  diabetesType      DiabetesType
+  hba1c             Float
+  fastingBloodSugar Float?
+  postPrandialSugar Float?
+  bloodPressureSys  Int?
+  bloodPressureDia  Int?
+  eGfr              Float?
+  medications       String[]         @default([])
+  allergies         String[]         @default([])
+  dietaryArchetype  DietaryArchetype @default(MEDITERRANEAN)
+  targetCalories    Int
+  targetCarbsGrams  Int
+  targetProteinGrams Int
+  targetFatGrams    Int
+  targetFiberGrams  Int
+  dietPlans         DietPlan[]
+  biomarkerLogs     BiomarkerLog[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model DietPlan {
+  id              String    @id @default(uuid())
+  patientId       String
+  patient         Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  totalCalories   Int
+  totalCarbs      Float
+  totalProtein    Float
+  totalFat        Float
+  totalFiber      Float
+  avgGlycemicLoad Float
+  status          String    @default("ACTIVE")
+  days            DayPlan[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model DayPlan {
+  id         String   @id @default(uuid())
+  dietPlanId String
+  dietPlan   DietPlan @relation(fields: [dietPlanId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int
+  dayTitle   String
+  meals      Meal[]
+}
+
+model Meal {
+  id            String   @id @default(uuid())
+  dayPlanId     String
+  dayPlan       DayPlan  @relation(fields: [dayPlanId], references: [id], onDelete: Cascade)
+  mealType      String
+  name          String
+  description   String?
+  calories      Int
+  carbs         Float
+  protein       Float
+  fat           Float
+  fiber         Float
+  glycemicIndex Int
+  glycemicLoad  Float
+  timing        String?
+  instructions  Json     @default("[]")
+  ingredients   Json     @default("[]")
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+}
+
+model Recipe {
+  id            String   @id @default(uuid())
+  name          String
+  category      String
+  cuisine       String
+  prepTimeMins  Int
+  calories      Int
+  carbs         Float
+  protein       Float
+  fat           Float
+  fiber         Float
+  glycemicIndex Int
+  glycemicLoad  Float
+  diabetesTags  String[] @default([])
+  ingredients   Json     @default("[]")
+  steps         Json     @default("[]")
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+}
+
+model BiomarkerLog {
+  id             String   @id @default(uuid())
+  patientId      String
+  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  loggedAt       DateTime @default(now())
+  glucoseReading Float
+  readingType    String
+  notes          String?
+}
