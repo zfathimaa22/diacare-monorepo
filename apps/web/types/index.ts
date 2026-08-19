@@ -99,7 +99,7 @@ export interface DayPlanData {
   meals: MealItem[];
 }
 
-export interface 7DayDietPlan {
+export interface SevenDayDietPlan {
   id: string;
   patientId: string;
   title: string;
