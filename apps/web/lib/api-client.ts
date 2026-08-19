@@ -5,7 +5,7 @@ import {
   DayPlanData, 
   MealItem, 
   RecipeData 
-} from '@diacare/shared-types';
+} from '@/types';
 import { supabase } from './supabase';
 
 /**
