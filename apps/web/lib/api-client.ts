@@ -1,7 +1,7 @@
 import { 
   PatientIntakeData, 
   NutritionPrescription, 
-  7DayDietPlan, 
+  SevenDayDietPlan, 
   DayPlanData, 
   MealItem, 
   RecipeData 
