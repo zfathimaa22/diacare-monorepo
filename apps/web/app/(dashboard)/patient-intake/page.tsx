@@ -14,7 +14,7 @@ import {
   Check, 
   AlertCircle 
 } from 'lucide-react';
-import { PatientIntakeData, DietaryArchetype, DiabetesType, ActivityLevel } from '@diacare/shared-types';
+import { PatientIntakeData, DietaryArchetype, DiabetesType, ActivityLevel } from '@/types';
 import { ClinicalApiClient } from '@/lib/api-client';
 import { MacroDonutRing } from '@/components/visuals/MacroDonutRing';
 
