@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { HeartPulse, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
-import { signIn } from 'next-auth/react';
+import { HeartPulse, Lock, Mail, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('demo1234');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,20 +19,31 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (res?.error) {
-        setError('Invalid email or password');
-      } else {
-        router.push('/dashboard');
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Invalid email or password');
+        setLoading(false);
+        return;
       }
+
+      setSuccess(true);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('diacare_user', JSON.stringify(data.user));
+      }
+
+      // Smooth transition to dashboard
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 400);
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
-    } finally {
+      setError(err.message || 'An unexpected connection error occurred');
       setLoading(false);
     }
   };
@@ -54,9 +65,16 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2 text-rose-400 text-xs">
+          <div className="mb-6 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2.5 text-rose-400 text-xs animate-shake">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-6 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2.5 text-emerald-400 text-xs">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>Authenticated successfully. Redirecting to your dashboard...</span>
           </div>
         )}
 
@@ -98,10 +116,10 @@ export default function LoginPage() {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold text-sm hover:opacity-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+              disabled={loading || success}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold text-sm hover:opacity-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50 cursor-pointer"
             >
-              <span>{loading ? 'Authenticating...' : 'Sign In'}</span>
+              <span>{loading ? 'Authenticating...' : success ? 'Entering Dashboard...' : 'Sign In'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
