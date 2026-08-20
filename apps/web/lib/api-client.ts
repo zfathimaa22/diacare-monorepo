@@ -294,7 +294,7 @@ export class ClinicalApiClient {
   /**
    * Generate complete 7-Day Personalized Meal Plan
    */
-  static generate7DayPlan(intake: PatientIntakeData): 7DayDietPlan {
+  static generate7DayPlan(intake: PatientIntakeData): SevenDayDietPlan {
     const prescription = this.calculatePrescription(intake);
     const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
