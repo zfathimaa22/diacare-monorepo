@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { HeartPulse, Lock, Mail, User, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import bcrypt from 'bcryptjs';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -22,25 +20,30 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      const passwordHash = await bcrypt.hash(password, 10);
-      const { error: insertError } = await supabase.from('users').insert({
-        name,
-        email: email.toLowerCase(),
-        password_hash: passwordHash,
-        role: 'PATIENT'
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role: 'PATIENT' }),
       });
 
-      if (insertError) {
-        throw new Error(insertError.message);
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Registration failed');
+        setLoading(false);
+        return;
       }
 
       setSuccess(true);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('diacare_user', JSON.stringify(data.user));
+      }
+
       setTimeout(() => {
-        router.push('/login');
-      }, 1500);
+        router.push('/dashboard');
+      }, 1000);
     } catch (err: any) {
       setError(err.message || 'Registration failed');
-    } finally {
       setLoading(false);
     }
   };
@@ -62,16 +65,16 @@ export default function RegisterPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2 text-rose-400 text-xs">
+          <div className="mb-6 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2.5 text-rose-400 text-xs">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2 text-emerald-400 text-xs">
+          <div className="mb-6 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2.5 text-emerald-400 text-xs">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>Registration successful! Redirecting to login...</span>
+            <span>Registration successful! Entering your dashboard...</span>
           </div>
         )}
 
@@ -88,7 +91,7 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-400 transition-colors font-sans"
-                placeholder="Dr. Jordan Hayes or Eleanor Vance"
+                placeholder="Eleanor Vance"
               />
             </div>
           </div>
@@ -119,10 +122,11 @@ export default function RegisterPage() {
               <input
                 type="password"
                 required
+                minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-400 transition-colors font-sans"
-                placeholder="••••••••"
+                placeholder="Minimum 6 characters"
               />
             </div>
           </div>
@@ -130,10 +134,10 @@ export default function RegisterPage() {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold text-sm hover:opacity-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+              disabled={loading || success}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold text-sm hover:opacity-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50 cursor-pointer"
             >
-              <span>{loading ? 'Creating Account...' : 'Register'}</span>
+              <span>{loading ? 'Creating Account...' : success ? 'Redirecting...' : 'Create Account'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -143,7 +147,7 @@ export default function RegisterPage() {
           <p className="text-xs text-slate-400">
             Already have an account?{' '}
             <Link href="/login" className="text-emerald-400 hover:text-emerald-300 font-bold">
-              Sign In Here
+              Sign In
             </Link>
           </p>
         </div>
